@@ -15,7 +15,7 @@ spec:
   metricsnames:
     - accuracy
   graphconfig:
-    - num_nodes: "8"
+    - num_vertex: "8"
     - input_size:
       list:
       - 32
