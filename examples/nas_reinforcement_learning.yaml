@@ -11,22 +11,19 @@ spec:
   optimizationtype: maximize
   objectivevaluename: Validation-accuracy
   optimizationgoal: 0.99
-  requestcount: 10
   metricsnames:
     - accuracy
-  graphconfig:
-    - num_vertex: "8"
-    - input_size:
-      list:
+  graphConfig:
+    numVertex: 8
+    inputSize:
       - 32
       - 32
       - 3
-    - output_szie:
-      list:
+    outputSize:
       - 10
   operations:
-    - operationtype: "convolution"
-      spec: 
+    - operationType: "convolution"
+      parameterconfigs:
         - name: "filter_size"
           parametertype: categorical
           feasible:
@@ -57,8 +54,8 @@ spec:
             - sigmoid
             - tanh
             - identity
-    - operationtype: "reduction"
-      spec: 
+    - operationType: "reduction"
+      parameterconfigs:
         - name: "reduction_type"
           parametertype: categorical
           feasible:
@@ -76,8 +73,8 @@ spec:
             list:
             - 1
             - 2
-    - operationtype: "dense"
-      spec:
+    - operationType: "dense"
+      parameterconfigs:
         - name: "num_units"
           parametertype: categorical
           feasible:
