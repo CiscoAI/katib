@@ -1,6 +1,6 @@
 import tensorflow as tf
-from Suggestion.LSTM import stack_lstm
-from Suggestion.Trainer import get_train_ops
+from pkg.suggestion.NAS_Reinforcement_Learning.LSTM import stack_lstm
+from pkg.suggestion.NAS_Reinforcement_Learning.Trainer import get_train_ops
 
 
 class Controller(object):
