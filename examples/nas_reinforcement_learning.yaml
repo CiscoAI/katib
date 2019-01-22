@@ -48,7 +48,7 @@ spec:
             - 2
         - name: "activation"
           parametertype: categorical
-          fesible:
+          feasible:
             list:
             - relu
             - sigmoid
