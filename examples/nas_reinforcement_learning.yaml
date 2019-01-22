@@ -127,7 +127,7 @@ spec:
     suggestionAlgorithm: "reinforcement-learning"
     suggestionParameters:
       - name: "lstm_num_cells"
-        value: "123456"
+        value: "64"
       - name: "lstm_num_layers"
         value: "1"
       - name: "lstm_keep_prob"
