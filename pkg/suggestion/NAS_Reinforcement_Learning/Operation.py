@@ -8,12 +8,12 @@ class Operation(object):
         self.opt_type = opt_type
         self.opt_params = opt_params
 
-    def print_op(self):
+    def __str__(self):
         print("Operation ID: \n\t", self.opt_id)
         print("Operation Type: \n\t", self.opt_type)
         print("Operations Parameters:")
-        for ikey in self.opt_params:
-            print("\t {}: {}".format(ikey, self.opt_params[ikey]))
+        for key, value in self.opt_params.items():
+            print("\t {}: {}".format(key, value)
 
 
 class SearchSpace(object):
@@ -63,10 +63,3 @@ class SearchSpace(object):
                 this_opt_class = Operation(operation_id, opt_type, opt_params)
                 self.search_space.append(this_opt_class)
                 operation_id += 1
-
-
-
-
-
-
-
