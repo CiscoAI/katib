@@ -59,13 +59,13 @@ def parseSuggestionParam(params_raw):
 
 
     for param in params_raw:
-        if param['name'] in suggestion_params.keys():
-            checktype(param['name'],
-                      param['value'],
-                      param_standard[param['name']][0],  # mode
-                      param_standard[param['name']][1],  # type
-                      param_standard[param['name']][2])  # range
+        if param.name in suggestion_params.keys():
+            checktype(param.name,
+                      param.value,
+                      param_standard[param.name][0],  # mode
+                      param_standard[param.name][1],  # type
+                      param_standard[param.name][2])  # range
         else:
-            print("Unknown Parameter name: %s ", param['name'])
+            print("Unknown Parameter name: {}".format(param.name))
 
     return suggestion_params

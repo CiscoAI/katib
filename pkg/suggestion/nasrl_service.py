@@ -2,17 +2,25 @@ from pkg.suggestion.NAS_Reinforcement_Learning.Controller import Controller
 from pkg.suggestion.NAS_Reinforcement_Learning.Operation import SearchSpace
 from pkg.suggestion.NAS_Reinforcement_Learning.SuggestionParam import parseSuggestionParam
 import tensorflow as tf
-import yaml
 import random
+import grpc
+from pkg.api.python import api_pb2
+from pkg.api.python import api_pb2_grpc
+import logging
+from logging import getLogger, StreamHandler, INFO, DEBUG
 
 
-class NAS_RL_Service(object):
+class NasrlService(api_pb2_grpc.SuggestionServicer):
     def __init__(self):
-        self._get_suggestion_param()
-        self._get_search_space()
-
+        self.manager_addr = "vizier-core"
+        self.manager_port = 6789
         self.tf_graph = tf.get_default_graph()
+        self.is_init = False
         self.is_first_run = True
+
+    def init_controller(self, request):
+        self._get_suggestion_param(request.param_id)
+        self._get_search_space(request.study_id)
 
         with self.tf_graph.as_default():
             self.controller = Controller(
@@ -34,8 +42,15 @@ class NAS_RL_Service(object):
                 name="controller")
 
             self.controller.build_trainer()
+        
+        self.is_init = True
 
-    def GetSuggestions(self):
+    def GetSuggestions(self, request, context):
+        trials = []
+
+        if not self.is_init:
+            self.init_controller(request)
+
         with self.tf_graph.as_default():
 
             saver = tf.train.Saver()
@@ -81,66 +96,60 @@ class NAS_RL_Service(object):
 
                     saver.save(sess, "ctrl_cache/controller.ckpt")
 
-        return arc
+        print(arc)
+        #return arc
+        return api_pb2.GetSuggestionsReply(trials=trials)
 
     def GetEvaluationResult(self):
         # fake results
 
         return random.uniform(0, 1)
 
-    def _get_search_space(self):
+    def _get_search_space(self, studyID):
 
         # this function need to
         # 1) get the number of layers
         # 2) get the I/O size
         # 2) get the available operations
 
-        # for local testing only. Will retrieve parameters from grpc server in Katib
-        with open("../nas_reinforcement_learning.yaml", 'r') as stream:
-            try:
-                studyjob = yaml.load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
+        channel = grpc.beta.implementations.insecure_channel(self.manager_addr, self.manager_port)
+        with api_pb2.beta_create_Manager_stub(channel) as client:
+            gsrep = client.GetStudy(api_pb2.GetStudyRequest(study_id=studyID, job_type="NAS"), 10)
+        
+        all_params = gsrep.study_config.nas_config
+        graph_config = all_params.graph_config
+        search_space_raw = all_params.operations
 
-        self.num_layers = int(studyjob["spec"]['graphconfig']['num_layers'])
-        self.input_size = list(map(int, studyjob["spec"]['graphconfig']['input_size']))
-        self.output_size = list(map(int, studyjob["spec"]['graphconfig']['output_size']))
+        self.num_layers = int(graph_config.num_layers)
+        self.input_size = list(map(int, graph_config.input_size))
+        self.output_size = list(map(int, graph_config.output_size))
 
-        search_space_raw = studyjob["spec"]["operations"]
         search_space_object = SearchSpace(search_space_raw)
 
+
+        print("\n==================== Search Space ====================")
         self.num_operations = search_space_object.num_operations
         print("There are", self.num_operations, "operations in total")
-
         self.search_space = search_space_object.search_space
         for opt in self.search_space:
             opt.print_op()
             print()
 
-    def _get_suggestion_param(self):
-        # for local testing only. Will retrieve parameters from grpc server in Katib
-        with open("../nas_reinforcement_learning.yaml", 'r') as stream:
-            try:
-                studyjob = yaml.load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
+    def _get_suggestion_param(self, paramID):
+        channel = grpc.beta.implementations.insecure_channel(self.manager_addr, self.manager_port)
+        with api_pb2.beta_create_Manager_stub(channel) as client:
+            gsprep = client.GetSuggestionParameters(api_pb2.GetSuggestionParametersRequest(param_id=paramID), 10)
+        
+        params_raw = gsprep.suggestion_parameters
 
-        params_raw = studyjob['spec']['suggestionSpec']['suggestionParameters']
         suggestion_params = parseSuggestionParam(params_raw)
 
-        print("=============== Parameters for LSTM Controller ===============")
+        print("\n=============== Parameters for LSTM Controller ===============")
         for spec in suggestion_params:
             print(spec, suggestion_params[spec])
 
         self.suggestion_config = suggestion_params
 
-
-# for testing the NAS_RL_Service only
-if __name__ == "__main__":
-    testing_service = NAS_RL_Service()
-    for i in range(10):
-        candidate = testing_service.GetSuggestions()
-        print(candidate)
 
 
 
