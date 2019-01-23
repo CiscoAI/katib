@@ -2,6 +2,7 @@ from pkg.suggestion.NAS_Reinforcement_Learning.Controller import Controller
 from pkg.suggestion.NAS_Reinforcement_Learning.Operation import SearchSpace
 from pkg.suggestion.NAS_Reinforcement_Learning.SuggestionParam import parseSuggestionParam
 import tensorflow as tf
+import numpy as np
 import random
 import grpc
 from pkg.api.python import api_pb2
@@ -97,12 +98,12 @@ class NasrlService(api_pb2_grpc.SuggestionServicer):
                     saver.save(sess, "ctrl_cache/controller.ckpt")
 
         print(arc)
-        #return arc
+        
         return api_pb2.GetSuggestionsReply(trials=trials)
 
     def GetEvaluationResult(self):
-        # fake results
-
+        # fake results for tseting
+        # will complete this part after training container is built and integrated
         return random.uniform(0, 1)
 
     def _get_search_space(self, studyID):
