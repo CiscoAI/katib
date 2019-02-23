@@ -105,7 +105,7 @@ Please feel free to test the system! [developer-guide.md](./docs/developer-guide
 
 ## Cisco's Contribution
 
-We developed the neural architecture search function for Katib, thus extending it from a hyperparmeter tool to a general AutoML platform. We extended the Katib API, database API, added EnvelopNet suggetion and reinforcement learning suggetion. Our work is summaried in katib.pdf. This paper is currently under review for Operational Machine Learning 2019.
+We developed the neural architecture search function for Katib, thus extending it from a hyperparmeter tool to a general AutoML platform. We extended the Katib API, database API, added EnvelopNet suggetion and reinforcement learning suggetion. Our work is summaried in [katib.pdf](katib.pdf). This paper is currently under review for Operational Machine Learning 2019.
 
 ## TODOs
 
